@@ -91,6 +91,12 @@ namespace RegistrationSystemWithFramework.Service
                 return false;
             }
 
+            if(StaticCurrentEmail.CurrentEmail is not null)
+            {
+                errorMessage = "At first you must log out ";
+                return false;
+            }
+
             errorMessage = null;
             return true;
         }
@@ -100,7 +106,7 @@ namespace RegistrationSystemWithFramework.Service
             return _repository.FindByEmail(email);
         }
 
-        public bool Update(UserUpdateViewModel userUpdateViewModel, out string errorMessage)
+        public bool Update(UserUpdateViewModel userUpdateViewModel, User user, out string errorMessage)
         {
             string passwordRegex = "^(?=.*\\d).{6,}$";
 
@@ -109,8 +115,14 @@ namespace RegistrationSystemWithFramework.Service
                 errorMessage = "The password must contain at least 6 symbols and at least one digit";
                 return false;
             }
-            
-            _repository.Update(userUpdateViewModel);
+
+			if (user.Name.Equals(userUpdateViewModel.Name) && user.Password.Equals(userUpdateViewModel.Password))
+			{
+				errorMessage = "Neither name nor password was changed";
+				return false;
+			}
+
+			_repository.Update(userUpdateViewModel);
             errorMessage = null;
             return true;
         }

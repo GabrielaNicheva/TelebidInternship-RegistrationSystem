@@ -91,23 +91,29 @@ namespace RegistrationSystemWithFramework.Controllers
             User user = _userService.FindUser(currentEmail);
             UserUpdateViewModel userLoginModel = new UserUpdateViewModel(user.Email,user.Name, user.Password);
 
-            var message = TempData["Message"] as string;
-            ViewBag.Message = message;
-
             return View(userLoginModel);
         }
 
         [HttpPost]
         public IActionResult Update(UserUpdateViewModel userUpdateModel)
         {
-            User user = _userService.FindUser(userUpdateModel.Email);
-            if(user.Name.Equals(userUpdateModel.Name) && user.Password.Equals(userUpdateModel.Password))
+			if (!ModelState.IsValid)
+			{
+				return View(userUpdateModel);
+			}
+
+			User user = _userService.FindUser(userUpdateModel.Email);
+            if(_userService.Update(userUpdateModel, user, out string errorMessage))
             {
-                TempData["Message"] = "Neither name nor password was changed";
-                return RedirectToAction("Update");
-            }
-            _userService.Update(userUpdateModel, out string errorMessage);
-           return RedirectToAction("UpdatedData");
+				return RedirectToAction("UpdatedData");
+			}
+
+			else
+			{
+				ModelState.AddModelError(string.Empty, errorMessage);
+				return View(userUpdateModel);
+			}
+			
         }
 
         public IActionResult UpdatedData()

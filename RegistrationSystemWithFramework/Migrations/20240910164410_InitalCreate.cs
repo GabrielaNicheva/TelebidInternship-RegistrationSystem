@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace RegistrationSystemWithFramework.Migrations
 {
-    /// <inheritdoc />
+    
+    // <inheritdoc />
     public partial class InitalCreate : Migration
     {
         /// <inheritdoc />
