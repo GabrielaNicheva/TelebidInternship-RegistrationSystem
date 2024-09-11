@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Grpc.Core;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using RegistrationSystemWithFramework.Captcha;
 using RegistrationSystemWithFramework.Data;
 using RegistrationSystemWithFramework.Models;
 using RegistrationSystemWithFramework.Service;
+using System.Drawing.Imaging;
 
 namespace RegistrationSystemWithFramework.Controllers
 {
@@ -9,13 +14,11 @@ namespace RegistrationSystemWithFramework.Controllers
     {
 
         private readonly IUserService _userService;
-        string? emailLogged = null;
 
         public UserController(IUserService userService)
         {
             _userService = userService;
         }
-
         public IActionResult Index()
         {
             return View();
@@ -26,16 +29,41 @@ namespace RegistrationSystemWithFramework.Controllers
             return View();
         }
 
-        public IActionResult Registration()
-        {
-            return View();
-        }
+		public IActionResult GenerateCaptchaImage()
+		{
+			var captchaGenerator = new GenerateCaptcha();
+			string captchaText = captchaGenerator.GetCaptchaText();
+			using var captchaImage = captchaGenerator.GenerateCaptchaImage(captchaText);
 
-        [HttpPost]
+			using var memoryStream = new MemoryStream();
+			captchaImage.Save(memoryStream, ImageFormat.Png);
+			memoryStream.Seek(0, SeekOrigin.Begin);
+
+			return File(memoryStream.ToArray(), "image/png");
+		}
+
+		public IActionResult Registration()
+		{
+			var captchaGenerator = new GenerateCaptcha();
+			string captchaText = captchaGenerator.GetCaptchaText();
+
+			HttpContext.Session.SetString("CaptchaText", captchaText);
+
+			return View();
+		}
+
+		[HttpPost]
         public IActionResult Registration(UserRegistrationViewModel model)
         {
+			string captchaText = HttpContext.Session.GetString("CaptchaText");
 
-            if (!ModelState.IsValid)
+			if (model.Captcha is null || !model.Captcha.Equals(captchaText))
+			{
+				ModelState.AddModelError(string.Empty, "Invalid CAPTCHA.");
+				return View();
+			}
+
+			if (!ModelState.IsValid)
             {
                 return View(model);
             }
@@ -44,6 +72,7 @@ namespace RegistrationSystemWithFramework.Controllers
             {
                 return RedirectToAction("Login");
             }
+
             else
             {
                 ModelState.AddModelError(string.Empty, errorMessage);

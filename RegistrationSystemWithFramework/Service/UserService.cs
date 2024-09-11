@@ -69,6 +69,14 @@ namespace RegistrationSystemWithFramework.Service
                 return false;
             }
 
+            //string captchaText = httpContext.Session.GetString("CaptchaText");
+
+            //if (!userModel.Captcha.Equals(HttpContext.Session.GetString("CaptchaText"));
+            //{
+            //    errorMessage = "Passwords do not match.";
+            //    return false;
+            //}
+
             var user = new User(userModel.Name, userModel.Email, userModel.Password, userModel.Gender, userModel.ISOCode, userModel.Phone, userModel.Address);
             _repository.Add(user);
             errorMessage = null;

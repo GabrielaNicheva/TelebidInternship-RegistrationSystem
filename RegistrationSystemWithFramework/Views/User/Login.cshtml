@@ -6,7 +6,7 @@
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger">
-        <strong>There was an error during the registration:</strong>
+        <strong>There was an error during the log in:</strong>
         <ul>
             @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
             {

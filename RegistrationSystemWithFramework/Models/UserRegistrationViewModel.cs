@@ -12,5 +12,6 @@ namespace RegistrationSystemWithFramework.Models
         public string ISOCode { get; set; }
         public string Phone { get; set; }
         public string? Address { get; set; }
+        public string Captcha { get; set; }
     }
 }
