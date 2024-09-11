@@ -31,16 +31,24 @@ namespace RegistrationSystemWithFramework.Controllers
 
 		public IActionResult GenerateCaptchaImage()
 		{
-			var captchaGenerator = new GenerateCaptcha();
-			string captchaText = captchaGenerator.GetCaptchaText();
-			using var captchaImage = captchaGenerator.GenerateCaptchaImage(captchaText);
+            string captchaText = HttpContext.Session.GetString("CaptchaText");
 
-			using var memoryStream = new MemoryStream();
-			captchaImage.Save(memoryStream, ImageFormat.Png);
-			memoryStream.Seek(0, SeekOrigin.Begin);
+            if (captchaText == null)
+            {
+                var captchaGenerator = new GenerateCaptcha();
+                captchaText = captchaGenerator.GetCaptchaText();
+                HttpContext.Session.SetString("CaptchaText", captchaText);
+            }
 
-			return File(memoryStream.ToArray(), "image/png");
-		}
+            var captchaGeneratorImage = new GenerateCaptcha();
+            using var captchaImage = captchaGeneratorImage.GenerateCaptchaImage(captchaText);
+
+            using var memoryStream = new MemoryStream();
+            captchaImage.Save(memoryStream, ImageFormat.Png);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            return File(memoryStream.ToArray(), "image/png");
+        }
 
 		public IActionResult Registration()
 		{
@@ -96,10 +104,11 @@ namespace RegistrationSystemWithFramework.Controllers
 
             if (_userService.LoginCheck(model, out string errorMessage))
             {
-                StaticCurrentEmail.CurrentEmail = model.Email;
-                string currentEmail = StaticCurrentEmail.CurrentEmail;
-                User user = _userService.FindUser(currentEmail);
-                StaticCurrentEmail.CurrentName = user.Name;
+                HttpContext.Session.SetString("UserEmail", model.Email);
+
+                User user = _userService.FindUser(model.Email);
+                HttpContext.Session.SetString("Name", user.Name);
+
                 return RedirectToAction("Index");
             }
             else
@@ -111,7 +120,7 @@ namespace RegistrationSystemWithFramework.Controllers
 
         public IActionResult Update()
         {
-            string currentEmail = StaticCurrentEmail.CurrentEmail;
+            string currentEmail = HttpContext.Session.GetString("UserEmail");
             if (String.IsNullOrEmpty(currentEmail))
             {
                 return RedirectToAction("Error");
@@ -147,7 +156,7 @@ namespace RegistrationSystemWithFramework.Controllers
 
         public IActionResult UpdatedData()
         {
-            string currentEmail = StaticCurrentEmail.CurrentEmail;
+            string currentEmail = HttpContext.Session.GetString("UserEmail");
             User user = _userService.FindUser(currentEmail);
             UserUpdateViewModel userLoginModel = new UserUpdateViewModel(user.Email, user.Name, user.Password);
             return View(userLoginModel);
@@ -155,8 +164,7 @@ namespace RegistrationSystemWithFramework.Controllers
 
         public IActionResult Logout()
         {
-            StaticCurrentEmail.CurrentEmail = null;
-            StaticCurrentEmail.CurrentName = null;
+            HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
 
         }

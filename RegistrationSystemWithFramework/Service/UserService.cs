@@ -69,14 +69,6 @@ namespace RegistrationSystemWithFramework.Service
                 return false;
             }
 
-            //string captchaText = httpContext.Session.GetString("CaptchaText");
-
-            //if (!userModel.Captcha.Equals(HttpContext.Session.GetString("CaptchaText"));
-            //{
-            //    errorMessage = "Passwords do not match.";
-            //    return false;
-            //}
-
             var user = new User(userModel.Name, userModel.Email, userModel.Password, userModel.Gender, userModel.ISOCode, userModel.Phone, userModel.Address);
             _repository.Add(user);
             errorMessage = null;
@@ -96,12 +88,6 @@ namespace RegistrationSystemWithFramework.Service
             if(!user.Password.Equals(model.Password))
             {
                 errorMessage = "Wrong password";
-                return false;
-            }
-
-            if(StaticCurrentEmail.CurrentEmail is not null)
-            {
-                errorMessage = "At first you must log out ";
                 return false;
             }
 

@@ -19,7 +19,7 @@
 <div class="text-center">
 <h1>Registration form</h1>
 </div>
-@if(StaticCurrentEmail.CurrentEmail is null)
+@if (ViewContext.HttpContext.Session.GetString("UserEmail") is null)
 {
     <div class="button-container">
         <a class="btn btn-primary" asp-area="" asp-controller="User" asp-action="Registration">Registration</a>

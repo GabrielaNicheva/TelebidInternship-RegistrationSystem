@@ -19,7 +19,7 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        @if (StaticCurrentEmail.CurrentEmail is null)
+                        @if (ViewContext.HttpContext.Session.GetString("UserEmail") is null)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Registration">Registration</a>
@@ -29,7 +29,7 @@
                             </li>
                         }
                        
-                        @if(StaticCurrentEmail.CurrentEmail is not null)
+                        @if(ViewContext.HttpContext.Session.GetString("UserEmail") is not null)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Log out</a>
@@ -39,9 +39,13 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Update">Change account</a>
                             </li>
 
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="UpdatedData">My account</a>
+                            </li>
+
                             <div class="navbar-right">
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark">Hello, @StaticCurrentEmail.CurrentName!</a>
+                                <a class="nav-link text-dark">Hello, @ViewContext.HttpContext.Session.GetString("Name")</a>
                                 </li>
                             </div>
                         }
