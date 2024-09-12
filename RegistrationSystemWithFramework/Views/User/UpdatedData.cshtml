@@ -1,16 +1,19 @@
-﻿@*
+﻿@using RegistrationSystemWithFramework.Data
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
     ViewData["Title"] = "My account";
 }
-@model UserUpdateViewModel
+@model User
 
 <form method="post" action="/User/UpdatedData">
     <div class="container mt-5 d-flex justify-content-center">
         <div class="card p-4 shadow-lg" style="max-width: 600px; width: 100%;">
             <div class="card-body">
-
+                <div style="text-align:center">
+                    <h3>My account</h3>
+                </div>
                 <div class="row mb-3">
                     <div class="col-12">
                         <p>Name:</p>
@@ -18,6 +21,44 @@
                     </div>
                 </div>
 
+                <hr />
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p>Email:</p>
+                        <h6 class="card-text">@Model.Email</h6>
+                    </div>
+                </div>
+                
+                <hr />
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p>Phone:</p>
+                        <h6 class="card-text">@Model.ISOCode  @Model.Phone</h6>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p>Gender:</p>
+                        <h6 class="card-text">@Model.Gender</h6>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p>Address:</p>
+                        <h6 class="card-text">@Model.Address</h6>
+                    </div>
+                </div>
+
+                <hr />
+                
                 <div class="row mb-3">
                     <div class="col-12">
                         <p>Password:</p>

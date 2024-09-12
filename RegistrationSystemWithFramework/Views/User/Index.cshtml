@@ -4,8 +4,11 @@
 @{
 }
 <div class="text-center">
-    <h1>You are successfully logged in!</h1>
-    <div class="button-container">
-        <a class="btn btn-primary" asp-area="" asp-controller="User" asp-action="Logout">Log out</a>
-    </div>
+    @if (ViewContext.HttpContext.Session.GetString("UserEmail") is not null)
+    {
+        <h1>You are successfully logged in!</h1>
+        <div class="button-container">
+            <a class="btn btn-primary" asp-area="" asp-controller="User" asp-action="Logout">Log out</a>
+        </div>
+    }
  </div>

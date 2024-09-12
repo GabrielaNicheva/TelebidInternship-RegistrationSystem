@@ -7,13 +7,6 @@ namespace RegistrationSystemWithFramework.Captcha
 {
     public class GenerateCaptcha
     {
-        public void CreateCaptcha(string filePath, int length = 6)
-        {
-            string captchaText = GenerateRandomText(length);
-            using var captchaImage = GenerateCaptchaImage(captchaText);
-            captchaImage.Save(filePath, ImageFormat.Png);
-        }
-
         public string GetCaptchaText(int length = 6)
         {
             return GenerateRandomText(length);
@@ -34,8 +27,8 @@ namespace RegistrationSystemWithFramework.Captcha
         }
         public Bitmap GenerateCaptchaImage(string captchaText)
         {
-            int width = 200;
-            int height = 60;
+            int width = 250;
+            int height = 80;
             var random = new Random();
 
             var bitmap = new Bitmap(width, height);
@@ -52,7 +45,7 @@ namespace RegistrationSystemWithFramework.Captcha
             graphics.RotateTransform(angle);
 
             float x = random.Next(10, 40);
-            float y = random.Next(10, 20);
+            float y = random.Next(10, 15);
 
             graphics.DrawString(captchaText, font, textBrush, x, y);
 

@@ -13,5 +13,11 @@ namespace RegistrationSystemWithFramework.Models
         public string Phone { get; set; }
         public string? Address { get; set; }
         public string Captcha { get; set; }
+        public bool IsVerified { get; set; }
+        public string? VerificationCode { get; set; }
+        public UserRegistrationViewModel()
+        {
+            
+        }
     }
 }

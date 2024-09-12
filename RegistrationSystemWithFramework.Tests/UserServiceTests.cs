@@ -150,7 +150,7 @@ namespace RegistrationSystemWithFramework.Tests
         [Test]
         public void LoginCheck_WhenPasswordIsWrong_ShouldReturnFalseAndErrorMessage()
         {
-            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null);
+            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null, true, "111111");
             _repositoryMock.Setup(r => r.FindByEmail(It.IsAny<string>())).Returns(user);
 
             var model = new UserLoginViewModel { Email = "test@example.com", Password = "wrongpassword" };
@@ -161,9 +161,22 @@ namespace RegistrationSystemWithFramework.Tests
         }
 
         [Test]
+        public void LoginCheck_WhenUsersRegistrationIsNotVerified_ShouldReturnFalseAndErrorMessage()
+        {
+            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null, false, "");
+            _repositoryMock.Setup(r => r.FindByEmail(It.IsAny<string>())).Returns(user);
+
+            var model = new UserLoginViewModel { Email = "test@example.com", Password = "wrongpassword" };
+            var result = _userService.LoginCheck(model, out var errorMessage);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual("Your registration is not verified.", errorMessage);
+        }
+
+        [Test]
         public void LoginCheck_WhenAllValid_ShouldReturnTrueAndNoErrorMessage()
         {
-            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null);
+            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null, true, "111111");
             _repositoryMock.Setup(r => r.FindByEmail(It.IsAny<string>())).Returns(user);
 
             var model = new UserLoginViewModel { Email = "test@example.com", Password = "password1" };
@@ -181,7 +194,7 @@ namespace RegistrationSystemWithFramework.Tests
         public void Update_WhenPasswordIsInvalid_ShouldReturnFalseAndErrorMessage()
         {
             var userUpdateViewModel = new UserUpdateViewModel { Password = "short" };
-            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null);
+            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null, true, "111111");
 
             var result = _userService.Update(userUpdateViewModel, user, out var errorMessage);
 
@@ -193,7 +206,7 @@ namespace RegistrationSystemWithFramework.Tests
         public void Update_WhenNoChanges_ShouldReturnFalseAndErrorMessage()
         {
             var userUpdateViewModel = new UserUpdateViewModel { Name = "Test", Password = "password1" };
-            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null);
+            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null, true, "111111");
 
             var result = _userService.Update(userUpdateViewModel, user, out var errorMessage);
 
@@ -205,7 +218,7 @@ namespace RegistrationSystemWithFramework.Tests
         public void Update_WhenAllValid_ShouldReturnTrueAndNoErrorMessage()
         {
             var userUpdateViewModel = new UserUpdateViewModel { Name = "New Name", Password = "newpassword1" };
-            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null);
+            var user = new User("Test", "test@example.com", "password1", null, null, "123456", null, true, "111111");
 
             _repositoryMock.Setup(r => r.Update(userUpdateViewModel)).Verifiable();
 

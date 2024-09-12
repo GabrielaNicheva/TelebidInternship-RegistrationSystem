@@ -1,7 +1,9 @@
 ﻿using RegistrationSystemWithFramework.Data;
 using RegistrationSystemWithFramework.Models;
 using RegistrationSystemWithFramework.Repository;
+using System.Text;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RegistrationSystemWithFramework.Service
 {
@@ -15,61 +17,75 @@ namespace RegistrationSystemWithFramework.Service
         }
         public bool Add(UserRegistrationViewModel userModel, out string errorMessage)
         {
+            StringBuilder builder = new StringBuilder();
+            bool error = false;
             if (string.IsNullOrEmpty(userModel.Name))
             {
-                errorMessage = "Name cannot be empty.";
-                return false;
+                builder.AppendLine("Name cannot be empty.");
+                error = true;
             }
 
             if (string.IsNullOrEmpty(userModel.Email))
             {
-                errorMessage = "Email cannot be empty.";
-                return false;
+                builder.AppendLine("Email cannot be empty.");
+                error = true;
             }
 
             if (string.IsNullOrEmpty(userModel.Phone))
             {
-                errorMessage = "Phone cannot be empty.";
-                return false;
+                builder.AppendLine("Phone cannot be empty.");
+                error = true;
             }
 
             if (string.IsNullOrEmpty(userModel.Password))
             {
-                errorMessage = "Password cannot be empty.";
-                return false;
+                builder.AppendLine("Password cannot be empty.");
+                error = true;
             }
 
             string emailRegex = @"^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$";
 
             if (!Regex.IsMatch(userModel.Email, emailRegex))
             {
-                errorMessage = "Invalid email";
-                return false;
+                builder.AppendLine("Invalid email");
+                error = true;
             }
 
             string phoneRegex = "^\\d+$";
 
             if (!Regex.IsMatch(userModel.Phone, phoneRegex))
             {
-                errorMessage = "Invalid phone number";
-                return false;
+                builder.AppendLine("Invalid phone number");
+                error = true;
             }
 
             string passwordRegex = "^(?=.*\\d).{6,}$";
 
             if (!Regex.IsMatch(userModel.Password, passwordRegex))
             {
-                errorMessage = "The password must contain at least 6 symbols and at least one digit";
-                return false;
+                builder.AppendLine("The password must contain at least 6 symbols and at least one digit");
+                error = true;
             }
 
             if (!userModel.Password.Equals(userModel.ConfirmedPassword))
             {
-                errorMessage = "Passwords do not match.";
+                builder.AppendLine("Passwords do not match.");
+                error = true;
+            }
+
+            User userAlreadyExists = FindUser(userModel.Email);
+            if (userAlreadyExists != null)
+            {
+                builder.AppendLine("Account with this email already exists.");
+                error = true;
+            }
+            if(error)
+            {
+                errorMessage = builder.ToString(); ;
                 return false;
             }
 
-            var user = new User(userModel.Name, userModel.Email, userModel.Password, userModel.Gender, userModel.ISOCode, userModel.Phone, userModel.Address);
+             var user = new User(userModel.Name, userModel.Email, userModel.Password, userModel.Gender, userModel.ISOCode, userModel.Phone, userModel.Address, userModel.IsVerified, userModel.VerificationCode);
             _repository.Add(user);
             errorMessage = null;
             return true;
@@ -78,6 +94,11 @@ namespace RegistrationSystemWithFramework.Service
         public bool LoginCheck(UserLoginViewModel model, out string errorMessage)
         {
             User user = FindUser(model.Email);
+            if(user.IsVerified == false || user.IsVerified is null)
+            {
+                errorMessage = "Your registration is not verified.";
+                return false;
+            }
 
             if (user is null)
             {
@@ -121,6 +142,56 @@ namespace RegistrationSystemWithFramework.Service
             return true;
         }
 
+        public bool CodeVerification(string verificationCode, out string errorMessage)
+        {
+            bool isRegistered = _repository.CodeVerification(verificationCode);
+            if (isRegistered)
+            {
+                errorMessage = null;
+                return true;
+            }
+            errorMessage = "Invalid verification code.";
+            return false;
+        }
+
+        public bool ForgotPassword(string email, out string errorMessage)
+        {
+            bool isPasswordForgotSucceeded = _repository.ForgotPassword(email);
+            if(!isPasswordForgotSucceeded)
+            {
+                errorMessage = "This email is not registered";
+                return false;
+            }
+            errorMessage = null;
+            return true;
+        }
+
+        public bool ResetPassword(ResetPasswordViewModel resetPasswordViewModel, out string errorMessage)
+        {
+            string passwordRegex = "^(?=.*\\d).{6,}$";
+
+            if (!Regex.IsMatch(resetPasswordViewModel.Password, passwordRegex))
+            {
+                errorMessage = "The password must contain at least 6 symbols and at least one digit";
+                return false;
+            }
+
+            if (resetPasswordViewModel.Password != resetPasswordViewModel.ConfirmedPassword)
+            {
+                errorMessage = "Passwords do not match.";
+                return false;
+            }
+
+            if(!_repository.ResetPassword(resetPasswordViewModel.Token, resetPasswordViewModel.Email, resetPasswordViewModel.Password))
+            {
+                errorMessage = "Error with the token or with the user";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+
+        }
 
     }
 }

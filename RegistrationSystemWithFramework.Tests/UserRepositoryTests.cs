@@ -30,7 +30,7 @@ namespace RegistrationSystemWithFramework.Tests
         [Test]
         public void GivenAnUserWithNonNullableValues_WhenAddingUser_AddsUser()
         {
-            var user = new User( "name", "email", "password", "gender", "isocode","phone", "address");
+            var user = new User("name", "email", "password", "gender", "isocode", "phone", "address", true, "111111");
 
             userRepository.Add(user);
 
@@ -49,7 +49,7 @@ namespace RegistrationSystemWithFramework.Tests
         [Test]
         public void GivenAnUserWithNullableValues_WhenAddingUser_AddsUser()
         {
-            var user = new User("name", "email", "password", "", "isocode", "phone", "");
+            var user = new User("name", "email", "password", "", "isocode", "phone", "", true, "111111");
 
             userRepository.Add(user);
 
@@ -104,13 +104,16 @@ namespace RegistrationSystemWithFramework.Tests
             Assert.That(updatedUser.Name, Is.EqualTo(userViewModel.Name));
         }
         #endregion
+
+        #region CodeVerification
+        #endregion
         private IEnumerable<User> SeedUsers()
         {
             var users = new[]
             {
-                new User( "name1", "email1@test.com", "password1", "gender1", "isocode1","phone1", "address"),
-                new User( "name2", "email2@test.com", "password2", "gender1", "isocode2","phone2", "address"),
-                new User( "name3", "email3@test.com", "password3", "", "isocode3","phone3", ""),
+                new User( "name1", "email1@test.com", "password1", "gender1", "isocode1","phone1", "address", true, "111111"),
+                new User( "name2", "email2@test.com", "password2", "gender1", "isocode2","phone2", "address", true, "111111"),
+                new User( "name3", "email3@test.com", "password3", "", "isocode3","phone3", "",  true, "111111"),
             };
 
             applicationDbContext.Users.AddRange(users);
@@ -127,5 +130,5 @@ namespace RegistrationSystemWithFramework.Tests
         }
     }
 
-   
+
 }

@@ -1,4 +1,5 @@
-﻿using RegistrationSystemWithFramework.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using RegistrationSystemWithFramework.Data;
 
 namespace RegistrationSystemWithFramework.Repository
 {
@@ -35,5 +36,41 @@ namespace RegistrationSystemWithFramework.Repository
             _context.SaveChanges();
         }
 
+        public bool CodeVerification(string verificationCode)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.VerificationCode == verificationCode);
+            if (user != null)
+            {
+                user.IsVerified = true;
+                user.VerificationCode = null;
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
+        public bool ForgotPassword(string email)
+        {
+            User user = FindByEmail(email);
+            if (user != null)
+            {
+                user.resetPassword = Guid.NewGuid().ToString();
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
+        public bool ResetPassword(string token, string email, string password)
+        {
+            User user = _context.Users.FirstOrDefault(u => u.Email == email && u.resetPassword == token);
+            if (user != null)
+            {
+                user.Password = password;
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
     }
 }

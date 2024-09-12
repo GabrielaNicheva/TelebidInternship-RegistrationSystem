@@ -4,25 +4,36 @@
 @{
 	ViewData["Title"] = "Registration";
 }
-@if (!ViewData.ModelState.IsValid)
+@* @if (ViewData.ModelState.ErrorCount > 0)
 {
     <div class="alert alert-danger">
         <strong>There was an error during the registration:</strong>
+    <div class="validation-summary-errors">
         <ul>
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <li>@error.ErrorMessage</li>
-            }
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <li>@error.ErrorMessage</li>
+        }
         </ul>
     </div>
-}
+    </div>
+} *@
 
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        <strong>There was an error during the registration:</strong>
+          <div class="validation-summary-errors">
+              @Html.Raw(ViewBag.ErrorMessage)
+          </div>
+    </div>
+}
 <form method="post" action="/User/Registration">
     <div class="container mt-5 d-flex justify-content-center">
         <div class="card p-4 shadow-lg" style="max-width: 600px; width: 100%;">
             <div class="card-body">
                 <div style="text-align:center">
-                    <h1>Registration</h1>
+                    <h2>Registration</h2>
                 </div>
                 <div class="row mb-3">
                     <div class="col-12">
@@ -56,11 +67,11 @@
 
                 <div class="row mb-3">
                     <div class="col-12">
-                        <label for="gender" class="form-label">Your gender:</label>
                         <select class="form-select" name="Gender" id="gender">
                             <option value="" selected disabled>Choose your gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
+                            <option value="unknown">I prefer not to say</option>
                         </select>
                     </div>
                 </div>
@@ -74,7 +85,7 @@
                 <div class="row mb-3">
                     <div class="col-12">
                         <input type="password" class="form-control" name="Password" placeholder="Password" required>
-                        <p style="color:red">Password must be at least 6 characters long and must contain at least 1 digit</p>
+                        <p style="color:red">Password must contain at least 6 characters and have at least 1 digit</p>
                     </div>
                 </div>
                 <div class="row mb-3">
@@ -98,3 +109,9 @@
         </div>
     </div>
 </form>
+
+<script>
+    function refreshCaptcha() {
+        document.getElementById('captchaImage').src = '@Url.Action("GenerateCaptchaImage", "User")?' + new Date().getTime();
+    }
+</script>

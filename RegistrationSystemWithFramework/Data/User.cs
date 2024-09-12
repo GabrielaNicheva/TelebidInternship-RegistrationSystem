@@ -24,12 +24,16 @@ namespace RegistrationSystemWithFramework.Data
         public string Phone { get; set; }
         public string? Address { get; set; }
 
+        public bool? IsVerified { get; set; }
+        public string? VerificationCode { get; set; }
+        public string? resetPassword { get; set; }
+
         public User()
         {
             
         }
 
-        public User(string name, string email, string password, string gender, string isocode, string phone, string address)
+        public User(string name, string email, string password, string gender, string isocode, string phone, string address, bool isVerified, string verificationCode)
         {
             Id = Guid.NewGuid().ToString();
             Name = name;
@@ -39,6 +43,8 @@ namespace RegistrationSystemWithFramework.Data
             ISOCode = isocode;
             Phone = phone;
             Address = address;
+            IsVerified = isVerified;
+            VerificationCode = verificationCode;
         }
     }
 }
