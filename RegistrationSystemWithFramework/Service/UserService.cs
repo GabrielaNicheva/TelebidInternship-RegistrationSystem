@@ -19,6 +19,7 @@ namespace RegistrationSystemWithFramework.Service
         {
             StringBuilder builder = new StringBuilder();
             bool error = false;
+
             if (string.IsNullOrEmpty(userModel.Name))
             {
                 builder.AppendLine("Name cannot be empty.");
@@ -30,11 +31,29 @@ namespace RegistrationSystemWithFramework.Service
                 builder.AppendLine("Email cannot be empty.");
                 error = true;
             }
+            else
+            {
+                string emailRegex = @"^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$";
+                if (!Regex.IsMatch(userModel.Email, emailRegex))
+                {
+                    builder.AppendLine("Invalid email");
+                    error = true;
+                }
+            }
 
             if (string.IsNullOrEmpty(userModel.Phone))
             {
                 builder.AppendLine("Phone cannot be empty.");
                 error = true;
+            }
+            else
+            {
+                string phoneRegex = @"^\d+$";
+                if (!Regex.IsMatch(userModel.Phone, phoneRegex))
+                {
+                    builder.AppendLine("Invalid phone number");
+                    error = true;
+                }
             }
 
             if (string.IsNullOrEmpty(userModel.Password))
@@ -42,32 +61,17 @@ namespace RegistrationSystemWithFramework.Service
                 builder.AppendLine("Password cannot be empty.");
                 error = true;
             }
-
-            string emailRegex = @"^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$";
-
-            if (!Regex.IsMatch(userModel.Email, emailRegex))
+            else
             {
-                builder.AppendLine("Invalid email");
-                error = true;
+                string passwordRegex = @"^(?=.*\d).{6,}$";
+                if (!Regex.IsMatch(userModel.Password, passwordRegex))
+                {
+                    builder.AppendLine("The password must contain at least 6 symbols and at least one digit");
+                    error = true;
+                }
             }
 
-            string phoneRegex = "^\\d+$";
-
-            if (!Regex.IsMatch(userModel.Phone, phoneRegex))
-            {
-                builder.AppendLine("Invalid phone number");
-                error = true;
-            }
-
-            string passwordRegex = "^(?=.*\\d).{6,}$";
-
-            if (!Regex.IsMatch(userModel.Password, passwordRegex))
-            {
-                builder.AppendLine("The password must contain at least 6 symbols and at least one digit");
-                error = true;
-            }
-
-            if (!userModel.Password.Equals(userModel.ConfirmedPassword))
+            if (!string.IsNullOrEmpty(userModel.Password) && !userModel.Password.Equals(userModel.ConfirmedPassword))
             {
                 builder.AppendLine("Passwords do not match.");
                 error = true;
@@ -79,34 +83,37 @@ namespace RegistrationSystemWithFramework.Service
                 builder.AppendLine("Account with this email already exists.");
                 error = true;
             }
-            if(error)
+
+            if (error)
             {
-                errorMessage = builder.ToString(); ;
+                errorMessage = builder.ToString();
                 return false;
             }
-
-             var user = new User(userModel.Name, userModel.Email, userModel.Password, userModel.Gender, userModel.ISOCode, userModel.Phone, userModel.Address, userModel.IsVerified, userModel.VerificationCode);
+            var user = new User(userModel.Name, userModel.Email, userModel.Password, userModel.Gender, userModel.ISOCode, userModel.Phone, userModel.Address, userModel.IsVerified, userModel.VerificationCode);
             _repository.Add(user);
+
             errorMessage = null;
             return true;
         }
 
+
         public bool LoginCheck(UserLoginViewModel model, out string errorMessage)
         {
             User user = FindUser(model.Email);
-            if(user.IsVerified == false || user.IsVerified is null)
-            {
-                errorMessage = "Your registration is not verified.";
-                return false;
-            }
-
+           
             if (user is null)
             {
                 errorMessage = "Invalid email";
                 return false;
             }
 
-            if(!user.Password.Equals(model.Password))
+            if (user.IsVerified == false || user.IsVerified is null)
+            {
+                errorMessage = "Your registration is not verified.";
+                return false;
+            }
+
+            if (!user.Password.Equals(model.Password))
             {
                 errorMessage = "Wrong password";
                 return false;
@@ -192,6 +199,7 @@ namespace RegistrationSystemWithFramework.Service
             return true;
 
         }
+
 
     }
 }

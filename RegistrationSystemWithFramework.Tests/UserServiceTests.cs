@@ -27,88 +27,91 @@ namespace RegistrationSystemWithFramework.Tests
         [Test]
         public void Add_WhenNameIsEmpty_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel { Name = "" };
+            var userModel = new UserRegistrationViewModel { Name = "", Email = "test@example.com", Phone = "123456", Password = "password1", ConfirmedPassword = "password1" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("Name cannot be empty.", errorMessage);
+            Assert.AreEqual("Name cannot be empty.\r\n", errorMessage);
         }
 
         [Test]
         public void Add_WhenEmailIsEmpty_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "" };
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "", Phone = "123456", Password = "password1", ConfirmedPassword = "password1" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("Email cannot be empty.", errorMessage);
+            Assert.AreEqual("Email cannot be empty.\r\n", errorMessage);
         }
 
         [Test]
         public void Add_WhenPhoneIsEmpty_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "" };
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "", Password = "password1", ConfirmedPassword = "password1" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("Phone cannot be empty.", errorMessage);
+            Assert.AreEqual("Phone cannot be empty.\r\n", errorMessage);
         }
 
         [Test]
         public void Add_WhenPasswordIsEmpty_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "123456", Password = "" };
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "123456", Password = "", ConfirmedPassword = "" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("Password cannot be empty.", errorMessage);
+            Assert.AreEqual("Password cannot be empty.\r\n", errorMessage);
         }
 
         [Test]
         public void Add_WhenEmailIsInvalid_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "invalid-email", Phone = "123456", Password = "password" };
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "invalid-email", Phone = "123456", Password = "password1", ConfirmedPassword = "password1" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("Invalid email", errorMessage);
+            Assert.AreEqual("Invalid email\r\n", errorMessage);
         }
 
         [Test]
         public void Add_WhenPhoneIsInvalid_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "invalid-phone", Password = "password" };
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "invalid-phone", Password = "password1", ConfirmedPassword = "password1" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("Invalid phone number", errorMessage);
+            Assert.AreEqual("Invalid phone number\r\n", errorMessage);
         }
 
         [Test]
         public void Add_WhenPasswordIsInvalid_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "123456", Password = "pass" };
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "123456", Password = "pass", ConfirmedPassword = "pass" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("The password must contain at least 6 symbols and at least one digit", errorMessage);
+            Assert.AreEqual("The password must contain at least 6 symbols and at least one digit\r\n", errorMessage);
         }
 
         [Test]
         public void Add_WhenPasswordsDoNotMatch_ShouldReturnFalseAndErrorMessage()
         {
-            var userModel = new UserRegistrationViewModel
-            {
-                Name = "Test",
-                Email = "test@example.com",
-                Phone = "123456",
-                Password = "password1",
-                ConfirmedPassword = "password2"
-            };
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "123456", Password = "password1", ConfirmedPassword = "password2" };
             var result = _userService.Add(userModel, out var errorMessage);
 
             Assert.IsFalse(result);
-            Assert.AreEqual("Passwords do not match.", errorMessage);
+            Assert.AreEqual("Passwords do not match.\r\n", errorMessage);
+        }
+
+        [Test]
+        public void Add_WhenPasswordIsInvalidAndDoNotMatch_ShouldReturnFalseAndErrorMessage()
+        {
+            var userModel = new UserRegistrationViewModel { Name = "Test", Email = "test@example.com", Phone = "123456", Password = "pass", ConfirmedPassword = "password2" };
+            var result = _userService.Add(userModel, out var errorMessage);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual("The password must contain at least 6 symbols and at least one digit\r\nPasswords do not match.\r\n", errorMessage);
         }
 
         [Test]
@@ -229,6 +232,131 @@ namespace RegistrationSystemWithFramework.Tests
             _repositoryMock.Verify(r => r.Update(userUpdateViewModel), Times.Once);
         }
 
+        #endregion
+
+        #region CodeVerification
+        [Test]
+        public void CodeVerification_WhenCodeIsValid_ShouldReturnTrueAndNoErrorMessage()
+        {
+            var verificationCode = "validCode";
+            _repositoryMock.Setup(r => r.CodeVerification(verificationCode)).Returns(true);
+
+            var result = _userService.CodeVerification(verificationCode, out var errorMessage);
+
+            Assert.IsTrue(result);
+            Assert.IsNull(errorMessage);
+        }
+
+        [Test]
+        public void CodeVerification_WhenCodeIsInvalid_ShouldReturnFalseAndErrorMessage()
+        {
+            var verificationCode = "invalidCode";
+            _repositoryMock.Setup(r => r.CodeVerification(verificationCode)).Returns(false);
+
+            var result = _userService.CodeVerification(verificationCode, out var errorMessage);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual("Invalid verification code.", errorMessage);
+        }
+        #endregion
+
+        #region ForgotPassword
+        [Test]
+        public void ForgotPassword_WhenEmailIsRegistered_ShouldReturnTrueAndNoErrorMessage()
+        {
+            var email = "test@example.com";
+            _repositoryMock.Setup(r => r.ForgotPassword(email)).Returns(true);
+
+            var result = _userService.ForgotPassword(email, out var errorMessage);
+
+            Assert.IsTrue(result);
+            Assert.IsNull(errorMessage);
+        }
+
+        [Test]
+        public void ForgotPassword_WhenEmailIsNotRegistered_ShouldReturnFalseAndErrorMessage()
+        {
+            var email = "notregistered@example.com";
+            _repositoryMock.Setup(r => r.ForgotPassword(email)).Returns(false);
+
+            var result = _userService.ForgotPassword(email, out var errorMessage);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual("This email is not registered", errorMessage);
+        }
+
+        #endregion
+
+        #region ResetPassword
+        [Test]
+        public void ResetPassword_WhenPasswordIsValid_ShouldReturnTrueAndNoErrorMessage()
+        {
+            var resetPasswordViewModel = new ResetPasswordViewModel
+            {
+                Password = "password1",
+                ConfirmedPassword = "password1",
+                Token = "validToken",
+                Email = "test@example.com"
+            };
+            _repositoryMock.Setup(r => r.ResetPassword(resetPasswordViewModel.Token, resetPasswordViewModel.Email, resetPasswordViewModel.Password)).Returns(true);
+
+            var result = _userService.ResetPassword(resetPasswordViewModel, out var errorMessage);
+
+            Assert.IsTrue(result);
+            Assert.IsNull(errorMessage);
+        }
+
+        [Test]
+        public void ResetPassword_WhenPasswordIsInvalid_ShouldReturnFalseAndErrorMessage()
+        {
+            var resetPasswordViewModel = new ResetPasswordViewModel
+            {
+                Password = "pass",
+                ConfirmedPassword = "pass",
+                Token = "validToken",
+                Email = "test@example.com"
+            };
+
+            var result = _userService.ResetPassword(resetPasswordViewModel, out var errorMessage);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual("The password must contain at least 6 symbols and at least one digit", errorMessage);
+        }
+
+        [Test]
+        public void ResetPassword_WhenPasswordsDoNotMatch_ShouldReturnFalseAndErrorMessage()
+        {
+            var resetPasswordViewModel = new ResetPasswordViewModel
+            {
+                Password = "password1",
+                ConfirmedPassword = "password2",
+                Token = "validToken",
+                Email = "test@example.com"
+            };
+
+            var result = _userService.ResetPassword(resetPasswordViewModel, out var errorMessage);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual("Passwords do not match.", errorMessage);
+        }
+
+        [Test]
+        public void ResetPassword_WhenTokenIsInvalid_ShouldReturnFalseAndErrorMessage()
+        {
+            var resetPasswordViewModel = new ResetPasswordViewModel
+            {
+                Password = "password1",
+                ConfirmedPassword = "password1",
+                Token = "invalidToken",
+                Email = "test@example.com"
+            };
+            _repositoryMock.Setup(r => r.ResetPassword(resetPasswordViewModel.Token, resetPasswordViewModel.Email, resetPasswordViewModel.Password)).Returns(false);
+
+            var result = _userService.ResetPassword(resetPasswordViewModel, out var errorMessage);
+
+            Assert.IsFalse(result);
+            Assert.AreEqual("Error with the token or with the user", errorMessage);
+        }
         #endregion
     }
 }

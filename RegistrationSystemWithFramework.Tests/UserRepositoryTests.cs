@@ -106,6 +106,74 @@ namespace RegistrationSystemWithFramework.Tests
         #endregion
 
         #region CodeVerification
+
+        [Test]
+        public void CodeVerification_ExistingCode_ReturnsTrue()
+        {
+            var user = SeedUsers().First();
+            var expectedUsers = SeedUsers();
+            bool isTrue = userRepository.CodeVerification(user.VerificationCode);
+
+            Assert.That(isTrue, Is.True);
+            Assert.That(user.IsVerified, Is.True);
+            Assert.IsNull(user.VerificationCode);
+        }
+
+        [Test]
+        public void CodeVerification_NonExistingCode_ReturnsFalse()
+        {
+            SeedUsers();
+            bool isVerified = userRepository.CodeVerification("nonExistingCode");
+
+            Assert.That(isVerified, Is.False);
+        }
+
+        #endregion
+
+        #region ForgotPassword
+        [Test]
+        public void ForgotPassword_ExistingUser_PasswordChanges()
+        {
+            var user = SeedUsers().First();
+            var expectedUsers = SeedUsers();
+            bool isPasswordReset = userRepository.ForgotPassword(user.Email);
+
+            Assert.IsTrue(isPasswordReset);
+            Assert.IsNotNull(user.resetPassword);
+        }
+
+        [Test]
+        public void ForgotPassword_NonExistingUser_ReturnsFalse()
+        {
+            var expectedUsers = SeedUsers();
+            bool isPasswordReset = userRepository.ForgotPassword("invalid@email.com");
+
+            Assert.IsFalse(isPasswordReset);
+        }
+
+        #endregion
+
+        #region ResetPassword
+        [Test]
+        public void ResetPassword_ValidData_ReturnsTrue()
+        {
+            var user = SeedUsers().First();
+            user.resetPassword = "resetToken1";
+            var expectedUsers = SeedUsers();
+            bool isPasswordChanges = userRepository.ResetPassword(user.resetPassword, user.Email, "newPassword");
+
+            Assert.IsTrue(isPasswordChanges);
+            Assert.That(user.Password, Is.EqualTo("newPassword"));
+        }
+
+        [Test]
+        public void ResetPassword_NonExistingToken_ReturnsFalse()
+        {
+            SeedUsers();
+            bool isPasswordReset = userRepository.ResetPassword("token", "invalid@email.com", "password");
+
+            Assert.IsFalse(isPasswordReset);
+        }
         #endregion
         private IEnumerable<User> SeedUsers()
         {
