@@ -57,7 +57,6 @@ namespace RegistrationSystemWithFramework.Controllers
         {
             var captchaGenerator = new GenerateCaptcha();
             string captchaText = captchaGenerator.GetCaptchaText();
-
             HttpContext.Session.SetString("CaptchaText", captchaText);
 
             return View();
@@ -98,6 +97,7 @@ namespace RegistrationSystemWithFramework.Controllers
 
                 return RedirectToAction("CheckYourEmail");
             }
+
             else
             {
                 var captchaGenerator = new GenerateCaptcha();
